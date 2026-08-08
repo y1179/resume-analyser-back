@@ -36,15 +36,15 @@
 
 // testChunk();
 
-
-
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 
-const splitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 500,
-  chunkOverlap: 100,
-});
+async function chunkText(text) {
+    const splitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 500,
+        chunkOverlap: 50,
+    });
 
-const chunks = await splitter.createDocuments([resumeText]);
+    return await splitter.createDocuments([text]);
+}
 
-console.log(chunks);
+module.exports = chunkText;
