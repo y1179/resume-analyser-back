@@ -40,38 +40,146 @@
 // module.exports = retrieveResume;
 
 
-const index = require("./pineconeClient");
-const { generateEmbeddings } = require("../utils/embedding");
+// const index = require("./pineconeClient");
+// const { generateEmbeddings } = require("../utils/embedding");
 
-async function retrieveResume(userId, query) {
+// async function retrieveResume(userId, query) {
+//     try {
+
+//         // Generate embedding for Job Description
+//         const [queryEmbedding] = await generateEmbeddings([query]);
+
+//         // Search Pinecone
+//         const response = await index.query({
+//             vector: queryEmbedding,
+//             topK: 5,
+//             includeMetadata: true,
+//             filter: {
+//                 userId: userId,
+//             },
+//         });
+
+//         if (!response.matches || response.matches.length === 0) {
+//             return [];
+//         }
+
+//         return response.matches.map((match) => ({
+//             text: match.metadata.text,
+//             score: match.score,
+//         }));
+
+//     } catch (error) {
+//         console.error("RETRIEVE_RESUME_ERROR:", error);
+//         throw error;
+//     }
+// }
+
+// module.exports = retrieveResume;
+
+
+const index = require("./pineconeClient");
+
+const {
+    generateEmbeddings
+} = require("../utils/embedding");
+
+
+async function retrieveResume(
+    userId,
+    query
+) {
+
     try {
 
-        // Generate embedding for Job Description
-        const [queryEmbedding] = await generateEmbeddings([query]);
+        if (!userId) {
+            throw new Error(
+                "User ID is required."
+            );
+        }
 
-        // Search Pinecone
-        const response = await index.query({
-            vector: queryEmbedding,
-            topK: 5,
-            includeMetadata: true,
-            filter: {
-                userId: userId,
-            },
-        });
-
-        if (!response.matches || response.matches.length === 0) {
+        if (!query || !query.trim()) {
             return [];
         }
 
-        return response.matches.map((match) => ({
-            text: match.metadata.text,
-            score: match.score,
-        }));
+        // -----------------------------------------
+        // GENERATE QUERY EMBEDDING
+        // -----------------------------------------
+
+        const [queryEmbedding] =
+            await generateEmbeddings(
+                [query],
+                "query"
+            );
+
+        if (!queryEmbedding) {
+            throw new Error(
+                "Failed to generate query embedding."
+            );
+        }
+
+        console.log(
+            "Query embedding dimension:",
+            queryEmbedding.length
+        );
+
+        // -----------------------------------------
+        // SEARCH PINECONE
+        // -----------------------------------------
+
+        const response =
+            await index.query({
+
+                vector:
+                    queryEmbedding,
+
+                topK: 5,
+
+                includeMetadata: true,
+
+                filter: {
+                    userId:
+                        String(userId)
+                }
+            });
+
+        if (
+            !response.matches ||
+            response.matches.length === 0
+        ) {
+
+            console.log(
+                "No relevant resume chunks found."
+            );
+
+            return [];
+        }
+
+        return response.matches
+            .map((match) => ({
+
+                text:
+                    match.metadata?.text ||
+                    "",
+
+                score:
+                    match.score
+
+            }))
+            .filter(
+                (item) => item.text
+            );
 
     } catch (error) {
-        console.error("RETRIEVE_RESUME_ERROR:", error);
+
+        console.error(
+            "RETRIEVE_RESUME_ERROR:",
+            error
+        );
+
         throw error;
     }
 }
 
-module.exports = retrieveResume;
+
+module.exports =
+    retrieveResume;
