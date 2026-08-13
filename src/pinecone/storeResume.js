@@ -381,37 +381,65 @@ async function storeResume(
         // =====================================================
 
         const batchSize = 100;
-
         for (
-            let i = 0;
-            i < vectors.length;
-            i += batchSize
-        ) {
+    let i = 0;
+    i < vectors.length;
+    i += batchSize
+) {
+    const batch = vectors.slice(
+        i,
+        i + batchSize
+    );
 
-            const batch =
-                vectors.slice(
-                    i,
-                    i + batchSize
-                );
+    if (
+        !Array.isArray(batch) ||
+        batch.length === 0
+    ) {
+        continue;
+    }
 
-            // Never send an empty batch to Pinecone
-            if (
-                !Array.isArray(batch) ||
-                batch.length === 0
-            ) {
-                continue;
-            }
+    console.log(
+        `Uploading Pinecone batch: ${i + 1}-${i + batch.length}`
+    );
 
-            console.log(
-                `Uploading Pinecone batch: ${i + 1}-${i + batch.length}`
-            );
+    await index.upsert({
+        records: batch
+    });
 
-            await index.upsert(batch);
+    console.log(
+        `Pinecone upserted ${i + batch.length}/${vectors.length}`
+    );
+}
+        // for (
+        //     let i = 0;
+        //     i < vectors.length;
+        //     i += batchSize
+        // ) {
 
-            console.log(
-                `Pinecone upserted ${i + batch.length}/${vectors.length}`
-            );
-        }
+        //     const batch =
+        //         vectors.slice(
+        //             i,
+        //             i + batchSize
+        //         );
+
+        //     // Never send an empty batch to Pinecone
+        //     if (
+        //         !Array.isArray(batch) ||
+        //         batch.length === 0
+        //     ) {
+        //         continue;
+        //     }
+
+        //     console.log(
+        //         `Uploading Pinecone batch: ${i + 1}-${i + batch.length}`
+        //     );
+
+        //     await index.upsert(batch);
+
+        //     console.log(
+        //         `Pinecone upserted ${i + batch.length}/${vectors.length}`
+        //     );
+        // }
 
         // =====================================================
         // SUCCESS
