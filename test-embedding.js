@@ -1,23 +1,33 @@
-require("dotenv").config();
+const { pipeline } = require("@huggingface/transformers");
 
-const { generateEmbeddings } = require("./src/utils/embedding");
-
-async function test() {
+async function testEmbedding() {
     try {
-        console.log("Testing Voyage embedding...");
+        console.log("Loading all-MiniLM-L6-v2...");
 
-        const result = await generateEmbeddings([
-            "I am a React and Node.js developer."
-        ]);
+        const extractor = await pipeline(
+            "feature-extraction",
+            "Xenova/all-MiniLM-L6-v2"
+        );
+
+        console.log("Model loaded successfully!");
+
+        const output = await extractor(
+            "I am a full stack developer skilled in React and Node.js.",
+            {
+                pooling: "mean",
+                normalize: true,
+            }
+        );
+
+        const embedding = Array.from(output.data);
 
         console.log("SUCCESS!");
-        console.log("Number of embeddings:", result.length);
-        console.log("Embedding dimension:", result[0].length);
+        console.log("Embedding dimension:", embedding.length);
+        console.log("First 5 values:", embedding.slice(0, 5));
 
     } catch (error) {
-        console.error("TEST FAILED:");
-        console.error(error);
+        console.error("EMBEDDING TEST ERROR:", error);
     }
 }
 
-test();
+testEmbedding();
