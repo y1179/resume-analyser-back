@@ -46,36 +46,57 @@
 // module.exports = index;
 
 
+// require("dotenv").config();
+
+// const {
+//     Pinecone,
+// } = require("@pinecone-database/pinecone");
+
+
+// // ======================================================
+// // PINECONE CLIENT
+// // ======================================================
+
+// const pinecone =
+//     new Pinecone({
+//         apiKey:
+//             process.env.PINECONE_API_KEY,
+//     });
+
+
+// // ======================================================
+// // PINECONE INDEX
+// // ======================================================
+
+// const index =
+//     pinecone.index(
+//         "resume-index-384"
+//     );
+
+
+// // ======================================================
+// // EXPORT
+// // ======================================================
+
+// module.exports = index;
+
+
 require("dotenv").config();
 
 const {
-    Pinecone,
+    Pinecone
 } = require("@pinecone-database/pinecone");
 
-
-// ======================================================
-// PINECONE CLIENT
-// ======================================================
 
 const pinecone =
     new Pinecone({
         apiKey:
-            process.env.PINECONE_API_KEY,
+            process.env.PINECONE_API_KEY
     });
 
 
-// ======================================================
-// PINECONE INDEX
-// ======================================================
-
 const index =
-    pinecone.index(
-        "resume-index-384"
-    );
+    pinecone.index("resume-index-384");
 
-
-// ======================================================
-// EXPORT
-// ======================================================
 
 module.exports = index;

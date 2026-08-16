@@ -470,11 +470,271 @@
 // }
 
 
+// // module.exports =
+// //     storeResume;
+
+// const index = require("./pineconeClient");
+
+
+// // =====================================================
+// // STORE RESUME
+// // =====================================================
+
+// async function storeResume(
+//     userId,
+//     chunks,
+//     embeddings
+// ) {
+
+//     try {
+
+//         // ---------------------------------------------
+//         // VALIDATE USER
+//         // ---------------------------------------------
+
+//         if (!userId) {
+
+//             throw new Error(
+//                 "User ID is required."
+//             );
+//         }
+
+
+//         // ---------------------------------------------
+//         // VALIDATE CHUNKS
+//         // ---------------------------------------------
+
+//         if (
+//             !Array.isArray(chunks) ||
+//             chunks.length === 0
+//         ) {
+
+//             throw new Error(
+//                 "No resume chunks provided."
+//             );
+//         }
+
+
+//         // ---------------------------------------------
+//         // VALIDATE EMBEDDINGS
+//         // ---------------------------------------------
+
+//         if (
+//             !Array.isArray(embeddings) ||
+//             embeddings.length === 0
+//         ) {
+
+//             throw new Error(
+//                 "No embeddings provided."
+//             );
+//         }
+
+
+//         // ---------------------------------------------
+//         // CHECK CHUNK / EMBEDDING COUNT
+//         // ---------------------------------------------
+
+//         if (
+//             chunks.length !==
+//             embeddings.length
+//         ) {
+
+//             throw new Error(
+//                 `Chunks and embeddings count mismatch. ` +
+//                 `Chunks: ${chunks.length}, ` +
+//                 `Embeddings: ${embeddings.length}`
+//             );
+//         }
+
+
+//         // ---------------------------------------------
+//         // VALIDATE EMBEDDING DIMENSIONS
+//         // ---------------------------------------------
+
+//         const EXPECTED_DIMENSION = 384;
+
+
+//         for (
+//             let i = 0;
+//             i < embeddings.length;
+//             i++
+//         ) {
+
+//             if (
+//                 !Array.isArray(
+//                     embeddings[i]
+//                 )
+//             ) {
+
+//                 throw new Error(
+//                     `Embedding ${i} is not an array.`
+//                 );
+//             }
+
+
+//             if (
+//                 embeddings[i].length !==
+//                 EXPECTED_DIMENSION
+//             ) {
+
+//                 throw new Error(
+//                     `Invalid embedding dimension at index ${i}. ` +
+//                     `Expected ${EXPECTED_DIMENSION}, ` +
+//                     `received ${embeddings[i].length}.`
+//                 );
+//             }
+//         }
+
+
+//         // ---------------------------------------------
+//         // CREATE PINECONE VECTORS
+//         // ---------------------------------------------
+
+//         const vectors =
+//             chunks.map(
+//                 (chunk, chunkIndex) => {
+
+//                     const text =
+//                         typeof chunk === "string"
+//                             ? chunk
+//                             : (
+//                                 chunk?.pageContent ||
+//                                 chunk?.text ||
+//                                 ""
+//                             );
+
+
+//                     return {
+
+//                         id:
+//                             `${userId}-${Date.now()}-${chunkIndex}`,
+
+//                         values:
+//                             embeddings[chunkIndex],
+
+//                         metadata: {
+
+//                             userId:
+//                                 String(userId),
+
+//                             text:
+//                                 text,
+
+//                             chunkIndex:
+//                                 chunkIndex
+
+//                         }
+
+//                     };
+//                 }
+//             );
+
+
+//         // ---------------------------------------------
+//         // VALIDATE VECTORS
+//         // ---------------------------------------------
+
+//         if (
+//             vectors.length === 0
+//         ) {
+
+//             throw new Error(
+//                 "No Pinecone vectors were created."
+//             );
+//         }
+
+
+//         console.log(
+//             "Preparing Pinecone vectors:",
+//             vectors.length
+//         );
+
+
+//         console.log(
+//             "Vector dimension:",
+//             vectors[0]?.values?.length
+//         );
+
+
+//         // ---------------------------------------------
+//         // UPSERT TO PINECONE
+//         // ---------------------------------------------
+
+//         const batchSize = 100;
+
+
+//         for (
+//             let i = 0;
+//             i < vectors.length;
+//             i += batchSize
+//         ) {
+
+//             const batch =
+//                 vectors.slice(
+//                     i,
+//                     i + batchSize
+//                 );
+
+
+//             if (
+//                 batch.length === 0
+//             ) {
+
+//                 continue;
+//             }
+
+
+//             console.log(
+//                 `Uploading Pinecone batch: ` +
+//                 `${i + 1}-${i + batch.length}`
+//             );
+
+
+//             await index.upsert(
+//                 batch
+//             );
+
+
+//             console.log(
+//                 `Pinecone upserted ` +
+//                 `${i + batch.length}/${vectors.length}`
+//             );
+//         }
+
+
+//         // ---------------------------------------------
+//         // SUCCESS
+//         // ---------------------------------------------
+
+//         console.log(
+//             "Resume stored successfully in Pinecone."
+//         );
+
+
+//         return true;
+
+
+//     } catch (error) {
+
+//         console.error(
+//             "STORE_RESUME_ERROR:",
+//             error
+//         );
+
+//         throw error;
+//     }
+// }
+
+
+// // =====================================================
+// // EXPORT
+// // =====================================================
+
 // module.exports =
 //     storeResume;
 
-const index = require("./pineconeClient");
 
+const index = require("./pineconeClient");
 
 // =====================================================
 // STORE RESUME
@@ -493,7 +753,6 @@ async function storeResume(
         // ---------------------------------------------
 
         if (!userId) {
-
             throw new Error(
                 "User ID is required."
             );
@@ -508,7 +767,6 @@ async function storeResume(
             !Array.isArray(chunks) ||
             chunks.length === 0
         ) {
-
             throw new Error(
                 "No resume chunks provided."
             );
@@ -523,7 +781,6 @@ async function storeResume(
             !Array.isArray(embeddings) ||
             embeddings.length === 0
         ) {
-
             throw new Error(
                 "No embeddings provided."
             );
@@ -535,10 +792,8 @@ async function storeResume(
         // ---------------------------------------------
 
         if (
-            chunks.length !==
-            embeddings.length
+            chunks.length !== embeddings.length
         ) {
-
             throw new Error(
                 `Chunks and embeddings count mismatch. ` +
                 `Chunks: ${chunks.length}, ` +
@@ -548,11 +803,16 @@ async function storeResume(
 
 
         // ---------------------------------------------
-        // VALIDATE EMBEDDING DIMENSIONS
+        // EXPECTED EMBEDDING DIMENSION
+        // all-MiniLM-L6-v2 = 384
         // ---------------------------------------------
 
         const EXPECTED_DIMENSION = 384;
 
+
+        // ---------------------------------------------
+        // VALIDATE EMBEDDINGS
+        // ---------------------------------------------
 
         for (
             let i = 0;
@@ -561,11 +821,8 @@ async function storeResume(
         ) {
 
             if (
-                !Array.isArray(
-                    embeddings[i]
-                )
+                !Array.isArray(embeddings[i])
             ) {
-
                 throw new Error(
                     `Embedding ${i} is not an array.`
                 );
@@ -576,7 +833,6 @@ async function storeResume(
                 embeddings[i].length !==
                 EXPECTED_DIMENSION
             ) {
-
                 throw new Error(
                     `Invalid embedding dimension at index ${i}. ` +
                     `Expected ${EXPECTED_DIMENSION}, ` +
@@ -604,6 +860,13 @@ async function storeResume(
                             );
 
 
+                    if (!text.trim()) {
+                        console.warn(
+                            `Warning: Empty text for chunk ${chunkIndex}`
+                        );
+                    }
+
+
                     return {
 
                         id:
@@ -626,6 +889,7 @@ async function storeResume(
                         }
 
                     };
+
                 }
             );
 
@@ -635,9 +899,9 @@ async function storeResume(
         // ---------------------------------------------
 
         if (
+            !Array.isArray(vectors) ||
             vectors.length === 0
         ) {
-
             throw new Error(
                 "No Pinecone vectors were created."
             );
@@ -657,7 +921,7 @@ async function storeResume(
 
 
         // ---------------------------------------------
-        // UPSERT TO PINECONE
+        // UPSERT IN BATCHES
         // ---------------------------------------------
 
         const batchSize = 100;
@@ -677,9 +941,9 @@ async function storeResume(
 
 
             if (
+                !batch ||
                 batch.length === 0
             ) {
-
                 continue;
             }
 
@@ -690,9 +954,19 @@ async function storeResume(
             );
 
 
-            await index.upsert(
-                batch
+            console.log(
+                "Pinecone batch size:",
+                batch.length
             );
+
+
+            // IMPORTANT:
+            // Use the records format for the
+            // current Pinecone SDK.
+
+            await index.upsert({
+                records: batch
+            });
 
 
             console.log(
